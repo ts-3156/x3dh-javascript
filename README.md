@@ -1,5 +1,7 @@
 A JavaScript implementation of The X3DH Key Agreement Protocol.
 
+This application is browser-compatible and can be run by simply pasting it into the browser's console.
+
 This application is written in very small JavaScript code.
 If you want to implement X3DH in your preferred programming language, it is better to look directly at the JavaScript code.
 
@@ -12,7 +14,7 @@ deno run x3dh.js
 Or
 
 ```javascript
-// Paste codes in x3dh.js to browser's console and run the below.
+// Paste codes in x3dh.js to your browser's console and run the below.
 
 const server = new Server();
 const alice = new Person();

@@ -162,12 +162,13 @@ class Person {
   #ik_pub;
   #spk;
   #spk_pub;
-  #sk;
-  #ad;
+  #_sk;
   #sk_pub;
   #spk_signature;
   #opk_set;
   #opk_pub_set;
+  #sk;
+  #ad;
 
   constructor() {
   }
@@ -176,8 +177,8 @@ class Person {
     [this.#ik, this.#ik_pub] = await generateKeyPair();
     [this.#spk, this.#spk_pub] = await generateKeyPair();
 
-    [this.#sk, this.#sk_pub] = await SigningKey.generate();
-    this.#spk_signature = await this.#sk.sign(await encodeKey(this.#spk_pub));
+    [this.#_sk, this.#sk_pub] = await SigningKey.generate();
+    this.#spk_signature = await this.#_sk.sign(await encodeKey(this.#spk_pub));
 
     const [opk, opk_pub] = await generateKeyPair();
     this.#opk_set = [opk];

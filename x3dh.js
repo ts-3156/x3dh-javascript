@@ -3,7 +3,7 @@ const { subtle, getRandomValues } = (typeof window === "undefined") ? globalThis
 // Recommended, but not implemented in browsers
 // const EXCHANGE_ALGORITHM = { name: "X25519"} ;
 
-const EXCHANGE_ALGORITHM = { name: "ECDH", namedCurve: "P-384" };
+const EXCHANGE_ALGORITHM = { name: "ECDH", namedCurve: "P-256" };
 
 class PrivateKey {
   #key;
@@ -111,6 +111,7 @@ async function dh(privateKey, publicKey) {
 async function encodeKey(key) {
   return await subtle.exportKey("raw", key);
 }
+
 function concat(...args) {
   let len = 0;
   for (const a of args) {
@@ -193,16 +194,7 @@ class Person {
     };
   }
 
-  async initX3DHInitiator(prekeyBundle) {
-    const bundle = {
-      ik_pub: prekeyBundle.ik_pub,
-      sk_pub: prekeyBundle.sk_pub,
-      spk_pub: prekeyBundle.spk_pub,
-      spk_signature: prekeyBundle.spk_signature,
-      opk_id: prekeyBundle.opk_id,
-      opk_pub: prekeyBundle.opk_pub,
-    };
-
+  async initX3DHInitiator(bundle) {
     // This value will be used for sending and receiving messages after X3DH.
     this.#spk_pub = bundle.spk_pub;
 
@@ -229,8 +221,6 @@ class Person {
   }
 
   async initX3DHResponder(data) {
-    data.ik_pub = data.ik_pub; // TODO
-    data.ek_pub = data.ek_pub; // TODO
     const opk = this.#opk_set[data.opk_id];
 
     const dh1 = await dh(this.#spk, data.ik_pub);
@@ -254,6 +244,8 @@ class Person {
 }
 
 class Server {
+  // Practically, Base64 encoding conversion must be applied to the data.
+
   #bundle;
 
   upload(bundle) {
@@ -283,8 +275,8 @@ if (import.meta.main) {
   server.upload(bob.prekeyBundle());
   const prekeyBundle = server.download();
 
-  const x3dh_data = await alice.initX3DHInitiator(prekeyBundle);
-  await bob.initX3DHResponder(x3dh_data);
+  const x3dhData = await alice.initX3DHInitiator(prekeyBundle);
+  await bob.initX3DHResponder(x3dhData);
 
   const a1 = await alice.sendMessage("a1");
   console.log(await bob.receiveMessage(...a1));

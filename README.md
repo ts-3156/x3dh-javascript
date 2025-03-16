@@ -1,8 +1,13 @@
 A JavaScript implementation of The X3DH Key Agreement Protocol.
 
-This application is browser-compatible and can be run by simply pasting it into the browser's console.
+This code snippet is browser-compatible and can be run by simply pasting it into the browser's console.
 
-This application is written in very small JavaScript code.
+As much as possible, I have implemented it as described in the official Signal documentation.
+
+I use only standard libraries and it does not require any additional packages.
+The original implementation of cryptographic primitives is intentionally avoided.
+
+This code snippet is written in very small JavaScript code.
 If you want to implement X3DH in your preferred programming language, it is better to look directly at the JavaScript code.
 
 ## Usage
@@ -42,7 +47,11 @@ console.log(await bob.receiveMessage(...b2));
 
 ## Different languages
 
-RUby version https://github.com/ts-3156/x3dh-ruby
+Ruby version https://github.com/ts-3156/x3dh-ruby
+
+JavaScript version https://github.com/ts-3156/x3dh-javascript
+
+TypeScript version https://github.com/ts-3156/x3dh-typescript
 
 ## Official documentation
 

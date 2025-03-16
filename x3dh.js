@@ -2,7 +2,7 @@ const { subtle, getRandomValues } = (typeof window === "undefined") ? globalThis
 
 class PrivateKey {
   // Recommended, but not implemented in browsers
-  // const ALGORITHM = { name: "X25519"} ;
+  // static ALGORITHM = { name: "X25519"} ;
 
   static ALGORITHM = { name: "ECDH", namedCurve: "P-256" };
 
@@ -32,7 +32,7 @@ class PrivateKey {
 
 class SigningKey {
   // Recommended, but not implemented in browsers
-  // const ALGORITHM = { name: "Ed25519" };
+  // static ALGORITHM = { name: "Ed25519" };
 
   static ALGORITHM = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
 
@@ -74,7 +74,7 @@ class AES256GCM {
     return [
       await subtle.encrypt(
         { name: "AES-GCM", iv: iv, additionalData: ad },
-        await this.keyFromBytes(key),
+        await this.keyFrom(key),
         plaintext,
       ),
       iv,
@@ -84,12 +84,12 @@ class AES256GCM {
   async decrypt(key, ciphertext, ad, iv) {
     return await subtle.decrypt(
       { name: "AES-GCM", iv: iv, additionalData: ad },
-      await this.keyFromBytes(key),
+      await this.keyFrom(key),
       ciphertext,
     );
   }
 
-  async keyFromBytes(bytes) {
+  async keyFrom(bytes) {
     return await subtle.importKey(
       "raw",
       bytes,
@@ -126,7 +126,7 @@ function concat(...args) {
     offset += out.byteLength;
   }
 
-  return buf;
+  return buf.buffer;
 }
 
 async function hkdf(km, n) {
@@ -265,7 +265,7 @@ class Server {
   }
 }
 
-if (import.meta.main) {
+async function main() {
   const server = new Server();
   const alice = new Person();
   const bob = new Person();
@@ -288,4 +288,11 @@ if (import.meta.main) {
   console.log(await bob.receiveMessage(...a2));
   const b2 = await bob.sendMessage("b2");
   console.log(await bob.receiveMessage(...b2));
+}
+
+if (typeof window === "undefined") {
+  // Run it in Deno.
+  (async function () {
+    await main();
+  })();
 }

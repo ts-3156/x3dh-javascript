@@ -40,6 +40,10 @@ const b2 = await bob.sendMessage("b2");
 console.log(await bob.receiveMessage(...b2));
 ```
 
+## Different languages
+
+RUby version https://github.com/ts-3156/x3dh-ruby
+
 ## Official documentation
 
 https://signal.org/docs/specifications/x3dh/

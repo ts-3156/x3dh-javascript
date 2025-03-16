@@ -1,7 +1,7 @@
 const { subtle, getRandomValues } = globalThis.crypto;
 
 // Recommended, but not implemented in browsers
-// const ENCRYPTION_ALGORITHM = {name: "X25519"};
+// const ENCRYPTION_ALGORITHM = { name: "X25519"} ;
 
 const ENCRYPTION_ALGORITHM = { name: "ECDH", namedCurve: "P-384" };
 
@@ -14,10 +14,7 @@ class PrivateKey {
 
   async exchange(key) {
     return await subtle.deriveBits(
-      {
-        ...ENCRYPTION_ALGORITHM,
-        ...{ public: key },
-      },
+      { ...ENCRYPTION_ALGORITHM, ...{ public: key } },
       this.#key,
       256,
     );
@@ -34,9 +31,9 @@ class PrivateKey {
 }
 
 // Recommended, but not implemented in browsers
-// const SIGNING_ALGORITHM = {name: "Ed25519"};
+// const SIGNING_ALGORITHM = { name: "Ed25519" };
 
-const SIGNING_ALGORITHM = {name: "ECDSA", namedCurve: "P-256", hash: "SHA-256"};
+const SIGNING_ALGORITHM = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
 
 class SigningKey {
   #key;
@@ -46,11 +43,7 @@ class SigningKey {
   }
 
   async sign(data) {
-    return await subtle.sign(
-      SIGNING_ALGORITHM,
-      this.#key,
-      data,
-    );
+    return await subtle.sign(SIGNING_ALGORITHM, this.#key, data);
   }
 
   static async generate() {
@@ -71,12 +64,7 @@ class VerifyKey {
   }
 
   async verify(signature, data) {
-    await subtle.verify(
-      SIGNING_ALGORITHM,
-      this.#key,
-      signature,
-      data,
-    );
+    await subtle.verify(SIGNING_ALGORITHM, this.#key, signature, data);
   }
 }
 
@@ -105,10 +93,7 @@ class AES256GCM {
     return await subtle.importKey(
       "raw",
       bytes,
-      {
-        name: "AES-GCM",
-        length: 256,
-      },
+      { name: "AES-GCM", length: 256 },
       false,
       ["encrypt", "decrypt"],
     );
@@ -221,10 +206,7 @@ class Person {
     // This value will be used for sending and receiving messages after X3DH.
     this.#spk_pub = bundle.spk_pub;
 
-    await bundle.sk_pub.verify(
-      bundle.spk_signature,
-      await encodeKey(bundle.spk_pub),
-    );
+    await bundle.sk_pub.verify(bundle.spk_signature, await encodeKey(bundle.spk_pub));
 
     const [ek, ek_pub] = await generateKeyPair();
 
@@ -233,16 +215,9 @@ class Person {
     const dh3 = await dh(ek, this.#spk_pub);
     const dh4 = await dh(ek, bundle.opk_pub);
     this.#sk = await hkdfSha256(concat(dh1, dh2, dh3, dh4), 0);
-    this.#ad = concat(
-      await encodeKey(this.#ik_pub),
-      await encodeKey(bundle.ik_pub),
-    );
+    this.#ad = concat(await encodeKey(this.#ik_pub), await encodeKey(bundle.ik_pub));
 
-    const [ciphertext, nonce] = await encrypt(
-      this.#sk,
-      "Initial message",
-      this.#ad,
-    );
+    const [ciphertext, nonce] = await encrypt(this.#sk, "Initial message", this.#ad);
 
     return {
       ik_pub: this.#ik_pub,
@@ -263,14 +238,9 @@ class Person {
     const dh3 = await dh(this.#spk, data.ek_pub);
     const dh4 = await dh(opk, data.ek_pub);
     this.#sk = await hkdfSha256(concat(dh1, dh2, dh3, dh4), 0);
-    this.#ad = concat(
-      await encodeKey(data.ik_pub),
-      await encodeKey(this.#ik_pub),
-    );
+    this.#ad = concat(await encodeKey(data.ik_pub), await encodeKey(this.#ik_pub));
 
-    return {
-      message: await decrypt(this.#sk, data.message, this.#ad, data.nonce),
-    };
+    return { message: await decrypt(this.#sk, data.message, this.#ad, data.nonce) };
   }
 
   async sendMessage(msg) {

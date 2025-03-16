@@ -5,7 +5,7 @@ If you want to implement X3DH in your preferred programming language, it is bett
 
 ## Usage
 
-```ruby
+```shell
 deno run x3dh.js
 ```
 

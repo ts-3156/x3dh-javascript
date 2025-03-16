@@ -31,6 +31,11 @@ class PrivateKey {
   }
 }
 
+// Recommended, but not implemented in browsers
+// const SIGNING_ALGORITHM = {name: "Ed25519"};
+
+const SIGNING_ALGORITHM = {name: "ECDSA", namedCurve: "P-256", hash: "SHA-256"};
+
 class SigningKey {
   #key;
 
@@ -40,7 +45,7 @@ class SigningKey {
 
   async sign(data) {
     return await subtle.sign(
-      "Ed25519",
+      SIGNING_ALGORITHM,
       this.#key,
       data,
     );
@@ -48,7 +53,7 @@ class SigningKey {
 
   static async generate() {
     const pair = await subtle.generateKey(
-      "Ed25519",
+      SIGNING_ALGORITHM,
       false,
       ["sign", "verify"],
     );
@@ -65,7 +70,7 @@ class VerifyKey {
 
   async verify(signature, data) {
     await subtle.verify(
-      "Ed25519",
+      SIGNING_ALGORITHM,
       this.#key,
       signature,
       data,

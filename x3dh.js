@@ -14,7 +14,7 @@ class PrivateKey {
 
   async exchange(key) {
     return await subtle.deriveBits(
-      { ...EXCHANGE_ALGORITHM, ...{ public: key } },
+      { ...EXCHANGE_ALGORITHM, public: key },
       this.#key,
       256,
     );
@@ -129,7 +129,7 @@ function concat(...args) {
   return buf;
 }
 
-async function hkdfSha256(km, n) {
+async function hkdf(km, n) {
   const raw = concat(new ArrayBuffer(32), km);
   const ikm = await subtle.importKey("raw", raw, "HKDF", false, ["deriveBits"]);
 
@@ -206,7 +206,7 @@ class Person {
     const dh2 = await dh(ek, bundle.ik_pub);
     const dh3 = await dh(ek, this.#spk_pub);
     const dh4 = await dh(ek, bundle.opk_pub);
-    this.#sk = await hkdfSha256(concat(dh1, dh2, dh3, dh4), 0);
+    this.#sk = await hkdf(concat(dh1, dh2, dh3, dh4), 0);
     this.#ad = concat(await encodeKey(this.#ik_pub), await encodeKey(bundle.ik_pub));
 
     const [ciphertext, nonce] = await encrypt(this.#sk, "Initial message", this.#ad);
@@ -227,7 +227,7 @@ class Person {
     const dh2 = await dh(this.#ik, data.ek_pub);
     const dh3 = await dh(this.#spk, data.ek_pub);
     const dh4 = await dh(opk, data.ek_pub);
-    this.#sk = await hkdfSha256(concat(dh1, dh2, dh3, dh4), 0);
+    this.#sk = await hkdf(concat(dh1, dh2, dh3, dh4), 0);
     this.#ad = concat(await encodeKey(data.ik_pub), await encodeKey(this.#ik_pub));
 
     return { message: await decrypt(this.#sk, data.message, this.#ad, data.nonce) };

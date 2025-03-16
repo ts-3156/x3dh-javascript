@@ -1,11 +1,11 @@
 const { subtle, getRandomValues } = (typeof window === "undefined") ? globalThis.crypto : window.crypto;
 
-// Recommended, but not implemented in browsers
-// const EXCHANGE_ALGORITHM = { name: "X25519"} ;
-
-const EXCHANGE_ALGORITHM = { name: "ECDH", namedCurve: "P-256" };
-
 class PrivateKey {
+  // Recommended, but not implemented in browsers
+  // const ALGORITHM = { name: "X25519"} ;
+
+  static ALGORITHM = { name: "ECDH", namedCurve: "P-256" };
+
   #key;
 
   constructor(key) {
@@ -14,7 +14,7 @@ class PrivateKey {
 
   async exchange(key) {
     return await subtle.deriveBits(
-      { ...EXCHANGE_ALGORITHM, public: key },
+      { ...PrivateKey.ALGORITHM, public: key },
       this.#key,
       256,
     );
@@ -22,7 +22,7 @@ class PrivateKey {
 
   static async generate() {
     const pair = await subtle.generateKey(
-      EXCHANGE_ALGORITHM,
+      PrivateKey.ALGORITHM,
       true,
       ["deriveBits"],
     );
@@ -30,12 +30,12 @@ class PrivateKey {
   }
 }
 
-// Recommended, but not implemented in browsers
-// const SIGNING_ALGORITHM = { name: "Ed25519" };
-
-const SIGNING_ALGORITHM = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
-
 class SigningKey {
+  // Recommended, but not implemented in browsers
+  // const ALGORITHM = { name: "Ed25519" };
+
+  static ALGORITHM = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
+
   #key;
 
   constructor(key) {
@@ -43,12 +43,12 @@ class SigningKey {
   }
 
   async sign(data) {
-    return await subtle.sign(SIGNING_ALGORITHM, this.#key, data);
+    return await subtle.sign(SigningKey.ALGORITHM, this.#key, data);
   }
 
   static async generate() {
     const pair = await subtle.generateKey(
-      SIGNING_ALGORITHM,
+      SigningKey.ALGORITHM,
       false,
       ["sign", "verify"],
     );
@@ -64,7 +64,7 @@ class VerifyKey {
   }
 
   async verify(signature, data) {
-    await subtle.verify(SIGNING_ALGORITHM, this.#key, signature, data);
+    await subtle.verify(SigningKey.ALGORITHM, this.#key, signature, data);
   }
 }
 

@@ -1,9 +1,9 @@
-const { subtle, getRandomValues } = globalThis.crypto;
+const { subtle, getRandomValues } = (typeof window === "undefined") ? globalThis.crypto : window.crypto;
 
 // Recommended, but not implemented in browsers
-// const ENCRYPTION_ALGORITHM = { name: "X25519"} ;
+// const EXCHANGE_ALGORITHM = { name: "X25519"} ;
 
-const ENCRYPTION_ALGORITHM = { name: "ECDH", namedCurve: "P-384" };
+const EXCHANGE_ALGORITHM = { name: "ECDH", namedCurve: "P-384" };
 
 class PrivateKey {
   #key;
@@ -14,7 +14,7 @@ class PrivateKey {
 
   async exchange(key) {
     return await subtle.deriveBits(
-      { ...ENCRYPTION_ALGORITHM, ...{ public: key } },
+      { ...EXCHANGE_ALGORITHM, ...{ public: key } },
       this.#key,
       256,
     );
@@ -22,7 +22,7 @@ class PrivateKey {
 
   static async generate() {
     const pair = await subtle.generateKey(
-      ENCRYPTION_ALGORITHM,
+      EXCHANGE_ALGORITHM,
       true,
       ["deriveBits"],
     );
